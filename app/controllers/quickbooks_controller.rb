@@ -1,4 +1,27 @@
 class QuickbooksController < ApplicationController
+  before_action :set_soap_header, :except => :qwc
+
+  def clientVersion(version)
+  end
+
+  def authenticate(username, password)
+  end
+
+  def connectionError(ticket, hresult, message)
+  end
+
+  def sendRequestXML(ticket, hpc_response, company_file_name, country, qbxml_major_version, qbxml_minor_version)
+  end
+
+  def receiveResponseXML(ticket, response, hresult, message)
+  end
+
+  def getLastError(ticket)
+  end
+
+  def closeConnection(ticket)
+  end
+
   def qwc
    qwc = <<QWC
 <QBWCXML>
@@ -19,4 +42,13 @@ class QuickbooksController < ApplicationController
 QWC
    send_data qwc, :filename => 'my_app.qwc'
  end
+
+ private  
+   def set_soap_header
+     if request.env['HTTP_SOAPACTION'].blank? || request.env['HTTP_SOAPACTION'] == %Q("")
+       xml = REXML::Document.new(request.raw_post)
+       element = REXML::XPath.first(xml, '/soap:Envelope/soap:Body/*')
+       request.env['HTTP_SOAPACTION'] = element.name if element
+     end
+   end
 end
